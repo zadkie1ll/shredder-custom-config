@@ -1,0 +1,16 @@
+services:
+  monkey-island-custom-config:
+    restart: unless-stopped
+    network_mode: host # на MacOS/Windows это не работает, нужно добавить ports секцию
+    image: monkey-island-custom-config:v0.1
+    env_file:
+      - .env
+    privileged: true
+    volumes:
+      - log:/app/log
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+volumes:
+  log:

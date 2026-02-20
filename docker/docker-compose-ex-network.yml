@@ -1,0 +1,25 @@
+services:
+  monkey-island-custom-config:
+    restart: unless-stopped
+    image: monkey-island-custom-config:v0.1
+    env_file:
+      - .env
+    privileged: true
+    volumes:
+      - log:/app/log
+    networks:
+      - remnawave-network
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "55555:55555"
+
+networks:
+  remnawave-network:
+    name: remnawave-network
+    driver: bridge
+    external: false
+
+volumes:
+  log:

@@ -1,0 +1,654 @@
+{
+  "api": {
+    "listen": "127.0.0.1:10085",
+    "services": [
+      "StatsService"
+    ],
+    "tag": "api"
+  },
+  "log": {
+    "loglevel": "none"
+  },
+  "burstObservatory": {
+    "pingConfig": {
+      "timeout": "3s",
+      "interval": "5m",
+      "sampling": 3,
+      "httpMethod": "GET",
+      "destination": "https://www.google.com/generate_204",
+      "connectivity": ""
+    },
+    "subjectSelector": [
+      "DIRECT",
+      "WL-VK",
+      "WL-YDX",
+      "YOUTUBE"
+    ]
+  },
+  "dns": {
+    "servers": [
+      "1.1.1.1",
+      "8.8.8.8",
+      {
+        "address": "77.88.8.8",
+        "domains": [
+          "geosite:private",
+          "geosite:category-ru",
+          "domain:monkeyisland.xyz",
+          "domain:monkeyisland.life",
+          "domain:monkeyisland.space",
+          "domain:easyemploy.org"
+        ],
+        "port": 53
+      }
+    ],
+    "queryStrategy": "UseIPv4"
+  },
+  "policy": {
+    "levels": {
+      "8": {
+        "connIdle": 60,
+        "downlinkOnly": 0,
+        "handshake": 4,
+        "statsUserDownlink": true,
+        "statsUserUplink": true,
+        "uplinkOnly": 0
+      }
+    },
+    "system": {
+      "statsInboundDownlink": true,
+      "statsInboundUplink": true,
+      "statsOutboundDownlink": true,
+      "statsOutboundUplink": true
+    }
+  },
+  "remarks": "{{REMARKS}}",
+  "routing": {
+    "balancers": [
+      {
+        "tag": "MAIN-BALANCER",
+        "selector": [
+          "{{ENTRY_NAME}}"
+        ]
+      },
+      {
+        "fallbackTag": "{{ENTRY_NAME}}",
+        "selector": [
+          "YOUTUBE"
+        ],
+        "tag": "YOUTUBE-BALANCER"
+      },
+      {
+        "fallbackTag": "LOOP-WL",
+        "selector": [
+          "DIRECT"
+        ],
+        "tag": "WL-BALANCER"
+      },
+      {
+        "fallbackTag": "LOOP-VK",
+        "selector": [
+          "WL-VK"
+        ],
+        "tag": "VK-FALLBACK"
+      },
+      {
+        "fallbackTag": "DIRECT",
+        "selector": [
+          "WL-YDX"
+        ],
+        "tag": "YDX-FALLBACK"
+      }
+    ],
+    "rules": [
+      {
+        "network": "udp",
+        "outboundTag": "BLOCK",
+        "port": "443"
+      },
+      {
+        "balancerTag": "WL-BALANCER",
+        "inboundTag": [
+          "ROUTING-SOCKS"
+        ]
+      },
+      {
+        "balancerTag": "VK-FALLBACK",
+        "inboundTag": [
+          "WL-REROUTE"
+        ]
+      },
+      {
+        "balancerTag": "YDX-FALLBACK",
+        "inboundTag": [
+          "VK-REROUTE"
+        ]
+      },
+      {
+        "balancerTag": "MAIN-BALANCER",
+        "ip": [
+          "1.1.1.1",
+          "8.8.8.8"
+        ]
+      },
+      {
+        "ip": [
+          "77.88.8.8"
+        ],
+        "outboundTag": "DIRECT"
+      },
+      {
+        "balancerTag": "YOUTUBE-BALANCER",
+        "domain": [
+          "geosite:youtube",
+          "full:www.google.com"
+        ]
+      },
+      {
+        "balancerTag": "MAIN-BALANCER",
+        "domain": [
+          "domain:habr.com",
+          "domain:jut.su",
+          "4pda"
+        ]
+      },
+      {
+        "balancerTag": "MAIN-BALANCER",
+        "ip": [
+          "108.181.60.0/24"
+        ]
+      },
+      {
+        "domain": [
+          "geosite:private"
+        ],
+        "outboundTag": "DIRECT"
+      },
+      {
+        "ip": [
+          "geoip:private"
+        ],
+        "outboundTag": "DIRECT"
+      },
+      {
+        "balancerTag": "WL-BALANCER",
+        "domain": [
+          "geosite:category-ru"
+        ]
+      },
+      {
+        "balancerTag": "WL-BALANCER",
+        "network": "tcp",
+        "port": "8080"
+      },
+      {
+        "balancerTag": "MAIN-BALANCER",
+        "network": "tcp,udp"
+      }
+    ],
+    "domainStrategy": "IPIfNonMatch"
+  },
+  "inbounds": [
+    {
+      "tag": "MIXED",
+      "port": 10808,
+      "listen": "127.0.0.1",
+      "protocol": "mixed",
+      "settings": {
+        "udp": true
+      },
+      "sniffing": {
+        "enabled": true,
+        "routeOnly": true,
+        "destOverride": [
+          "http",
+          "tls",
+          "quic"
+        ]
+      }
+    },
+    {
+      "listen": "127.0.0.1",
+      "port": 10809,
+      "protocol": "http",
+      "tag": "HTTP"
+    },
+    {
+      "listen": "127.0.0.1",
+      "port": 10810,
+      "protocol": "socks",
+      "settings": {
+        "udp": true
+      },
+      "sniffing": {
+        "destOverride": [
+          "http",
+          "tls",
+          "quic"
+        ],
+        "enabled": false,
+        "routeOnly": true
+      },
+      "tag": "ROUTING-SOCKS"
+    }
+  ],
+  "outbounds": [
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "ru.monkeyisland.xyz",
+            "port": 443,
+            "users": [
+              {
+                "id": "{{VLESS_USER}}",
+                "encryption": "none",
+                "flow": "xtls-rprx-vision"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "tcpSettings": {},
+        "security": "reality",
+        "realitySettings": {
+          "serverName": "ru.monkeyisland.xyz",
+          "show": false,
+          "publicKey": "2AKBmK0PMf2zUMhRo1Ad-WNf_XoRk3AN-SGo6ZdhxA4",
+          "shortId": "19e741a804f420a7",
+          "fingerprint": "chrome"
+        }
+      },
+      "tag": "YOUTUBE"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "185.130.113.121",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "flow": "xtls-rprx-vision",
+                "id": "{{VLESS_USER}}",
+                "level": 2
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "raw",
+        "realitySettings": {
+          "shortId": "3b25133dd9e5c23f",
+          "publicKey": "LHcascaxOxugVSALgsYx46nB-vuhT7ANOneu0xb6SzQ",
+          "serverName": "max.ru"
+        },
+        "security": "reality"
+      },
+      "tag": "WL-VK-1"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "146.185.210.156",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "flow": "xtls-rprx-vision",
+                "id": "{{VLESS_USER}}",
+                "level": 2
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "raw",
+        "realitySettings": {
+          "shortId": "3b25133dd9e5c23f",
+          "publicKey": "LHcascaxOxugVSALgsYx46nB-vuhT7ANOneu0xb6SzQ",
+          "serverName": "max.ru"
+        },
+        "security": "reality"
+      },
+      "tag": "WL-VK-2"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "84.23.52.130",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "flow": "xtls-rprx-vision",
+                "id": "{{VLESS_USER}}",
+                "level": 2
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "raw",
+        "realitySettings": {
+          "shortId": "3b25133dd9e5c23f",
+          "publicKey": "LHcascaxOxugVSALgsYx46nB-vuhT7ANOneu0xb6SzQ",
+          "serverName": "max.ru"
+        },
+        "security": "reality"
+      },
+      "tag": "WL-VK-3"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "87.239.108.107",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "flow": "xtls-rprx-vision",
+                "id": "{{VLESS_USER}}",
+                "level": 2
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "raw",
+        "realitySettings": {
+          "shortId": "3b25133dd9e5c23f",
+          "publicKey": "LHcascaxOxugVSALgsYx46nB-vuhT7ANOneu0xb6SzQ",
+          "serverName": "max.ru"
+        },
+        "security": "reality"
+      },
+      "tag": "WL-VK-4"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "212.233.74.181",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "flow": "xtls-rprx-vision",
+                "id": "{{VLESS_USER}}",
+                "level": 2
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "raw",
+        "realitySettings": {
+          "shortId": "3b25133dd9e5c23f",
+          "publicKey": "LHcascaxOxugVSALgsYx46nB-vuhT7ANOneu0xb6SzQ",
+          "serverName": "max.ru"
+        },
+        "security": "reality"
+      },
+      "tag": "WL-VK-5"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "85.192.34.142",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "flow": "xtls-rprx-vision",
+                "id": "{{VLESS_USER}}",
+                "level": 2
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "raw",
+        "realitySettings": {
+          "shortId": "3b25133dd9e5c23f",
+          "publicKey": "LHcascaxOxugVSALgsYx46nB-vuhT7ANOneu0xb6SzQ",
+          "serverName": "max.ru"
+        },
+        "security": "reality"
+      },
+      "tag": "WL-VK-6"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "212.233.123.196",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "flow": "xtls-rprx-vision",
+                "id": "{{VLESS_USER}}",
+                "level": 2
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "raw",
+        "realitySettings": {
+          "shortId": "3b25133dd9e5c23f",
+          "publicKey": "LHcascaxOxugVSALgsYx46nB-vuhT7ANOneu0xb6SzQ",
+          "serverName": "max.ru"
+        },
+        "security": "reality"
+      },
+      "tag": "WL-VK-7"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "85.192.32.228",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "flow": "xtls-rprx-vision",
+                "id": "{{VLESS_USER}}",
+                "level": 2
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "raw",
+        "realitySettings": {
+          "shortId": "3b25133dd9e5c23f",
+          "publicKey": "LHcascaxOxugVSALgsYx46nB-vuhT7ANOneu0xb6SzQ",
+          "serverName": "max.ru"
+        },
+        "security": "reality"
+      },
+      "tag": "WL-VK-8"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "87.239.110.228",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "flow": "xtls-rprx-vision",
+                "id": "{{VLESS_USER}}",
+                "level": 2
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "raw",
+        "realitySettings": {
+          "shortId": "3b25133dd9e5c23f",
+          "publicKey": "LHcascaxOxugVSALgsYx46nB-vuhT7ANOneu0xb6SzQ",
+          "serverName": "max.ru"
+        },
+        "security": "reality"
+      },
+      "tag": "WL-VK-9"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "84.23.52.114",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "flow": "xtls-rprx-vision",
+                "id": "{{VLESS_USER}}",
+                "level": 2
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "raw",
+        "realitySettings": {
+          "shortId": "3b25133dd9e5c23f",
+          "publicKey": "LHcascaxOxugVSALgsYx46nB-vuhT7ANOneu0xb6SzQ",
+          "serverName": "max.ru"
+        },
+        "security": "reality"
+      },
+      "tag": "WL-VK-10"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "185.130.114.26",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "flow": "xtls-rprx-vision",
+                "id": "{{VLESS_USER}}",
+                "level": 2
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "raw",
+        "realitySettings": {
+          "shortId": "3b25133dd9e5c23f",
+          "publicKey": "LHcascaxOxugVSALgsYx46nB-vuhT7ANOneu0xb6SzQ",
+          "serverName": "max.ru"
+        },
+        "security": "reality"
+      },
+      "tag": "WL-VK-11"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "51.250.100.96",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "flow": "xtls-rprx-vision",
+                "id": "{{VLESS_USER}}",
+                "level": 2
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "raw",
+        "realitySettings": {
+          "shortId": "3b25133dd9e5c23f",
+          "publicKey": "LHcascaxOxugVSALgsYx46nB-vuhT7ANOneu0xb6SzQ",
+          "serverName": "ads.x5.ru"
+        },
+        "security": "reality"
+      },
+      "tag": "WL-YDX-1"
+    },
+    {
+      "protocol": "freedom",
+      "settings": {
+        "domainStrategy": "UseIPv4",
+        "userLevel": 8
+      },
+      "tag": "DIRECT"
+    },
+    {
+      "protocol": "blackhole",
+      "tag": "BLOCK"
+    },
+    {
+      "protocol": "socks",
+      "settings": {
+        "servers": [
+          {
+            "address": "127.0.0.1",
+            "port": 10810
+          }
+        ]
+      },
+      "tag": "ROUTING-IN"
+    },
+    {
+      "protocol": "loopback",
+      "settings": {
+        "inboundTag": "WL-REROUTE"
+      },
+      "tag": "LOOP-WL"
+    },
+    {
+      "protocol": "loopback",
+      "settings": {
+        "inboundTag": "VK-REROUTE"
+      },
+      "tag": "LOOP-VK"
+    }
+  ]
+}

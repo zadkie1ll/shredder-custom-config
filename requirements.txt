@@ -1,0 +1,7 @@
+httpx[http2]
+asyncio
+orjson
+black
+uvicorn
+fastapi
+jinja2
