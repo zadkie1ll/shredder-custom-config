@@ -78,7 +78,6 @@ def parse_traffic_to_bytes(traffic_str):
         "PiB": 1024**5
     }
     
-    # Разделяем строку на число и единицу измерения (например, "1.10" и "TiB")
     parts = traffic_str.split()
     if len(parts) != 2:
         return 0
@@ -88,7 +87,6 @@ def parse_traffic_to_bytes(traffic_str):
     
     return int(value * units.get(unit, 1))
 
-# можно заменить на api вызов из библиотеки RemnawaveSDK
 async def get_user_subscription_raw(client: httpx.AsyncClient, short_uuid: str):
     headers = {
         "Authorization": f"Bearer {config.bearer}",
@@ -240,7 +238,7 @@ async def generate_custom_config(short_uuid: str):
         traffic_raw = converted_user_info["trafficUsed"]
         traffic_bytes = parse_traffic_to_bytes(traffic_raw)
 
-        announce = "ВСЕ ЛОКАЦИИ В БЕЛОМ СПИСКЕ ❤️"
+        announce = "Белые списки на Российских серверах"
 
         return Response(
             content=orjson.dumps(client_config, option=orjson.OPT_INDENT_2).decode('utf-8'),
@@ -249,7 +247,7 @@ async def generate_custom_config(short_uuid: str):
                 "Content-Disposition": f"attachment; filename={username}.json",
                 "Support-URL": "https://t.me/monkeyislandsupportbot",
                 "announce": f"base64:{base64.b64encode(announce.encode("utf-8")).decode("utf-8")}",
-                "Profile-Title": "base64:8J+mpyBNb25rZXkgSXNsYW5kIFZQTgo=",
+                "Profile-Title": f"base64:{base64.b64encode('ShredderVPN'.encode('utf-8')).decode('utf-8')}",
                 "Profile-Update-Interval": "1",
                 "profile-web-page-url": f"{subscription_url}",
                 "Subscription-Userinfo": f"upload=0; download={traffic_bytes}; total=0; expire={seconds}",
