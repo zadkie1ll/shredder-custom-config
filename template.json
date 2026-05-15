@@ -19,7 +19,11 @@
       "connectivity": ""
     },
     "subjectSelector": [
-      "WL-"
+      "WL-01",
+      "WL-02",
+      "WL-03",
+      "WL-04",
+      "WL-05"
     ]
   },
   "dns": {
@@ -51,14 +55,54 @@
   "routing": {
     "balancers": [
       {
-        "tag": "WL-BALANCER",
+        "tag": "WL-01-BALANCER",
         "selector": [
-          "WL-"
+          "WL-01"
         ],
         "strategy": {
           "type": "leastPing"
         },
-        "fallbackTag": "WL-01"
+        "fallbackTag": "LOOP-WL-02"
+      },
+      {
+        "tag": "WL-02-BALANCER",
+        "selector": [
+          "WL-02"
+        ],
+        "strategy": {
+          "type": "leastPing"
+        },
+        "fallbackTag": "LOOP-WL-03"
+      },
+      {
+        "tag": "WL-03-BALANCER",
+        "selector": [
+          "WL-03"
+        ],
+        "strategy": {
+          "type": "leastPing"
+        },
+        "fallbackTag": "LOOP-WL-04"
+      },
+      {
+        "tag": "WL-04-BALANCER",
+        "selector": [
+          "WL-04"
+        ],
+        "strategy": {
+          "type": "leastPing"
+        },
+        "fallbackTag": "LOOP-WL-05"
+      },
+      {
+        "tag": "WL-05-BALANCER",
+        "selector": [
+          "WL-05"
+        ],
+        "strategy": {
+          "type": "leastPing"
+        },
+        "fallbackTag": "LOOP-WL-01"
       }
     ],
     "rules": [
@@ -91,8 +135,43 @@
       },
       {
         "type": "field",
+        "inboundTag": [
+          "WL-01-REROUTE"
+        ],
+        "balancerTag": "WL-01-BALANCER"
+      },
+      {
+        "type": "field",
+        "inboundTag": [
+          "WL-02-REROUTE"
+        ],
+        "balancerTag": "WL-02-BALANCER"
+      },
+      {
+        "type": "field",
+        "inboundTag": [
+          "WL-03-REROUTE"
+        ],
+        "balancerTag": "WL-03-BALANCER"
+      },
+      {
+        "type": "field",
+        "inboundTag": [
+          "WL-04-REROUTE"
+        ],
+        "balancerTag": "WL-04-BALANCER"
+      },
+      {
+        "type": "field",
+        "inboundTag": [
+          "WL-05-REROUTE"
+        ],
+        "balancerTag": "WL-05-BALANCER"
+      },
+      {
+        "type": "field",
         "network": "tcp,udp",
-        "balancerTag": "WL-BALANCER"
+        "balancerTag": "WL-01-BALANCER"
       }
     ],
     "domainMatcher": "hybrid",
@@ -303,6 +382,41 @@
     {
       "tag": "BLOCK",
       "protocol": "blackhole"
+    },
+    {
+      "tag": "LOOP-WL-01",
+      "protocol": "loopback",
+      "settings": {
+        "inboundTag": "WL-01-REROUTE"
+      }
+    },
+    {
+      "tag": "LOOP-WL-02",
+      "protocol": "loopback",
+      "settings": {
+        "inboundTag": "WL-02-REROUTE"
+      }
+    },
+    {
+      "tag": "LOOP-WL-03",
+      "protocol": "loopback",
+      "settings": {
+        "inboundTag": "WL-03-REROUTE"
+      }
+    },
+    {
+      "tag": "LOOP-WL-04",
+      "protocol": "loopback",
+      "settings": {
+        "inboundTag": "WL-04-REROUTE"
+      }
+    },
+    {
+      "tag": "LOOP-WL-05",
+      "protocol": "loopback",
+      "settings": {
+        "inboundTag": "WL-05-REROUTE"
+      }
     }
   ]
 }
