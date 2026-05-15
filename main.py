@@ -22,6 +22,7 @@ from config import Config
 config = Config()
 
 TEMPLATE = Template(PLPath("template.json").read_text(encoding="utf-8"))
+AUTO_WL_PROFILE_REMARKS = "AUTO-WL-PROFILE"
 
 
 @asynccontextmanager
@@ -126,6 +127,24 @@ async def get_all_outbounds(
     return outbounds
 
 
+def get_outbound_by_tag(config_object: dict, tag: str) -> dict | None:
+    for outbound in config_object.get("outbounds", []):
+        if outbound.get("tag") == tag:
+            return outbound
+
+    return None
+
+
+def build_auto_wl_profile(vless_uuid: str, remarks: str) -> dict:
+    rendered_host = TEMPLATE.render(
+        VLESS_USER=vless_uuid,
+        REMARKS=remarks,
+        ENTRY_NAME=config.base_entry_proxy_tag
+    )
+
+    return orjson.loads(rendered_host)
+
+
 def should_remove_youtube_route(outbound) -> bool:
     if "streamSettings" in outbound and "realitySettings" in outbound["streamSettings"]:
         if "serverName" in outbound["streamSettings"]["realitySettings"]:
@@ -198,32 +217,30 @@ async def generate_custom_config(short_uuid: str):
             client=client, short_uuid=short_uuid
         )
 
-        outbounds = await get_all_outbounds(
-            client_config_json=client_config_json,
-            searching_outbound_tag=config.default_outbound_tag,
-        )
-
-        if not outbounds:
-            return JSONResponse(
-                content=client_config_json,
-                media_type="application/json",
-            )
-
         client_config = []
-        for outbound, remarks in outbounds:
-            rendered_host = TEMPLATE.render(
-                VLESS_USER=vless_uuid,
-                REMARKS=remarks,
-                ENTRY_NAME=config.base_entry_proxy_tag
+        for profile in client_config_json:
+            remarks = profile.get("remarks", "")
+
+            if remarks != AUTO_WL_PROFILE_REMARKS:
+                client_config.append(profile)
+                continue
+
+            outbound = get_outbound_by_tag(
+                config_object=profile,
+                tag=config.default_outbound_tag,
             )
 
-            host_json = orjson.loads(rendered_host)
+            if outbound is None:
+                logging.warning(
+                    "AUTO-WL-PROFILE has no %s outbound, returning original profile",
+                    config.default_outbound_tag,
+                )
+                client_config.append(profile)
+                continue
 
-            if should_remove_youtube_route(outbound):
-                host_json = remove_youtube_route(host_json)
-
-            host_json["outbounds"].insert(0, outbound)
-            client_config.append(host_json)
+            client_config.append(
+                build_auto_wl_profile(vless_uuid=vless_uuid, remarks=remarks)
+            )
 
         now = datetime.now()
         future_date = now + timedelta(days=days_left)
