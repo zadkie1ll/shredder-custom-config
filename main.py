@@ -200,7 +200,7 @@ async def generate_custom_config(short_uuid: str):
 
         outbounds = await get_all_outbounds(
             client_config_json=client_config_json,
-            searching_outbound_tag="proxy",
+            searching_outbound_tag=config.default_outbound_tag,
         )
 
         if not outbounds:
