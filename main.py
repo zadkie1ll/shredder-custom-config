@@ -145,6 +145,15 @@ def build_auto_wl_profile(vless_uuid: str, remarks: str) -> dict:
     return orjson.loads(rendered_host)
 
 
+def attach_routing_dialer(outbound: dict) -> dict:
+    outbound["tag"] = config.base_entry_proxy_tag
+    outbound.setdefault("streamSettings", {})
+    outbound["streamSettings"]["sockopt"] = {
+        "dialerProxy": "ROUTING-IN"
+    }
+    return outbound
+
+
 def should_remove_youtube_route(outbound) -> bool:
     if "streamSettings" in outbound and "realitySettings" in outbound["streamSettings"]:
         if "serverName" in outbound["streamSettings"]["realitySettings"]:
@@ -238,9 +247,9 @@ async def generate_custom_config(short_uuid: str):
                 client_config.append(profile)
                 continue
 
-            client_config.append(
-                build_auto_wl_profile(vless_uuid=vless_uuid, remarks=remarks)
-            )
+            host_json = build_auto_wl_profile(vless_uuid=vless_uuid, remarks=remarks)
+            host_json["outbounds"].insert(0, attach_routing_dialer(outbound))
+            client_config.append(host_json)
 
         now = datetime.now()
         future_date = now + timedelta(days=days_left)
