@@ -56,7 +56,7 @@
           "WL-"
         ],
         "strategy": {
-          "type": "roundRobin"
+          "type": "leastPing"
         },
         "fallbackTag": "WL-01"
       }
