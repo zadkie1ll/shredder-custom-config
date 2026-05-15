@@ -51,12 +51,6 @@
   "routing": {
     "balancers": [
       {
-        "tag": "MAIN-BALANCER",
-        "selector": [
-          "{{ENTRY_NAME}}"
-        ]
-      },
-      {
         "tag": "WL-BALANCER",
         "selector": [
           "WL-"
@@ -83,13 +77,6 @@
       },
       {
         "type": "field",
-        "inboundTag": [
-          "ROUTING-SOCKS"
-        ],
-        "balancerTag": "WL-BALANCER"
-      },
-      {
-        "type": "field",
         "domain": [
           "geosite:private"
         ],
@@ -105,7 +92,7 @@
       {
         "type": "field",
         "network": "tcp,udp",
-        "balancerTag": "MAIN-BALANCER"
+        "balancerTag": "WL-BALANCER"
       }
     ],
     "domainMatcher": "hybrid",
@@ -140,25 +127,6 @@
       },
       "sniffing": {
         "enabled": true,
-        "routeOnly": true,
-        "destOverride": [
-          "http",
-          "tls",
-          "quic"
-        ]
-      }
-    },
-    {
-      "tag": "ROUTING-SOCKS",
-      "port": 10810,
-      "listen": "127.0.0.1",
-      "protocol": "socks",
-      "settings": {
-        "udp": true,
-        "auth": "noauth"
-      },
-      "sniffing": {
-        "enabled": false,
         "routeOnly": true,
         "destOverride": [
           "http",
@@ -335,18 +303,6 @@
     {
       "tag": "BLOCK",
       "protocol": "blackhole"
-    },
-    {
-      "tag": "ROUTING-IN",
-      "protocol": "socks",
-      "settings": {
-        "servers": [
-          {
-            "address": "127.0.0.1",
-            "port": 10810
-          }
-        ]
-      }
     }
   ]
 }

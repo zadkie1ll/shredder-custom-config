@@ -222,9 +222,6 @@ async def generate_custom_config(short_uuid: str):
             if should_remove_youtube_route(outbound):
                 host_json = remove_youtube_route(host_json)
 
-            outbound["streamSettings"]["sockopt"] = {
-                "dialerProxy": "ROUTING-IN"
-            }
             host_json["outbounds"].insert(0, outbound)
             client_config.append(host_json)
 
