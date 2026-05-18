@@ -238,7 +238,7 @@ async def generate_custom_config(short_uuid: str):
         traffic_raw = converted_user_info["trafficUsed"]
         traffic_bytes = parse_traffic_to_bytes(traffic_raw)
 
-        announce = "🔐В белых списках доступ ко всем сайтам"
+        announce = "🔐В белых списках доступ ко всем сайтам. Все локации в белом списке!"
 
         return Response(
             content=orjson.dumps(client_config, option=orjson.OPT_INDENT_2).decode('utf-8'),
