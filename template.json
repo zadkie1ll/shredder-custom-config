@@ -431,6 +431,37 @@
       "tag" : "WL-02-LM-2"
     },
     {
+      "protocol" : "vless",
+      "settings" : {
+        "vnext" : [
+          {
+            "address" : "91.240.86.70",
+            "port" : 443,
+            "users" : [
+              {
+                "encryption" : "none",
+                "flow" : "",
+                "id" : "6e84b643-1c90-41e7-9028-ce4dea28c21c"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings" : {
+        "network" : "tcp",
+        "realitySettings" : {
+          "fingerprint" : "chrome",
+          "publicKey" : "F2VfBr2UmjDTErB_oruvW5aIvzH_xGfM2AW5_w-DF0I",
+          "serverName" : "ads.x5.ru"
+        },
+        "security" : "reality",
+        "tcpSettings" : {
+
+        }
+      },
+      "tag" : "WL-02-LM-3"
+    },
+    {
       "protocol": "freedom",
       "settings": {
         "domainStrategy": "UseIPv4"
