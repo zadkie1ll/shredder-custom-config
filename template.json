@@ -238,7 +238,7 @@
       "streamSettings": {
         "network": "tcp",
         "realitySettings": {
-          "fingerprint": "chrome",
+          "fingerprint": "firefox",
           "publicKey": "s8rHJ8TSxWVCl4OnDzygPD1rvGAulfXoXpGHvZV7tlE",
           "serverName": "ads.x5.ru",
           "shortId": "e4aa362b5f9d07d7"
@@ -267,7 +267,7 @@
       "streamSettings": {
         "network": "tcp",
         "realitySettings": {
-          "fingerprint": "chrome",
+          "fingerprint": "firefox",
           "publicKey": "s8rHJ8TSxWVCl4OnDzygPD1rvGAulfXoXpGHvZV7tlE",
           "serverName": "ads.x5.ru",
           "shortId": "e4aa362b5f9d07d7"
@@ -296,7 +296,7 @@
       "streamSettings": {
         "network": "tcp",
         "realitySettings": {
-          "fingerprint": "chrome",
+          "fingerprint": "firefox",
           "publicKey": "s8rHJ8TSxWVCl4OnDzygPD1rvGAulfXoXpGHvZV7tlE",
           "serverName": "ads.x5.ru",
           "shortId": "e4aa362b5f9d07d7"
@@ -325,7 +325,7 @@
       "streamSettings": {
         "network": "tcp",
         "realitySettings": {
-          "fingerprint": "chrome",
+          "fingerprint": "firefox",
           "publicKey": "s8rHJ8TSxWVCl4OnDzygPD1rvGAulfXoXpGHvZV7tlE",
           "serverName": "ads.x5.ru",
           "shortId": "e4aa362b5f9d07d7"
@@ -354,7 +354,7 @@
       "streamSettings": {
         "network": "tcp",
         "realitySettings": {
-          "fingerprint": "chrome",
+          "fingerprint": "firefox",
           "publicKey": "s8rHJ8TSxWVCl4OnDzygPD1rvGAulfXoXpGHvZV7tlE",
           "serverName": "ads.x5.ru",
           "shortId": "e4aa362b5f9d07d7"
@@ -383,7 +383,7 @@
       "streamSettings" : {
         "network" : "tcp",
         "realitySettings" : {
-          "fingerprint" : "chrome",
+          "fingerprint" : "firefox",
           "publicKey" : "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
           "serverName" : "ads.x5.ru"
         },
@@ -418,7 +418,7 @@
           "alpn" : [
             "http\/1.1"
           ],
-          "fingerprint" : "chrome",
+          "fingerprint" : "firefox",
           "serverName" : "mwscdn.ru"
         },
         "wsSettings" : {
@@ -450,7 +450,7 @@
       "streamSettings" : {
         "network" : "tcp",
         "realitySettings" : {
-          "fingerprint" : "chrome",
+          "fingerprint" : "firefox",
           "publicKey" : "F2VfBr2UmjDTErB_oruvW5aIvzH_xGfM2AW5_w-DF0I",
           "serverName" : "ads.x5.ru"
         },
