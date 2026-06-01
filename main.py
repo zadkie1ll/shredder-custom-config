@@ -245,7 +245,7 @@ async def generate_custom_config(short_uuid: str):
             media_type="application/json",
             headers={
                 "Content-Disposition": f"attachment; filename={username}.json",
-                "Support-URL": "https://t.me/monkeyislandsupportbot",
+                "Support-URL": "https://t.me/Shredder_vps_bot",
                 "announce": f"base64:{base64.b64encode(announce.encode("utf-8")).decode("utf-8")}",
                 "Profile-Title": f"base64:{base64.b64encode('ShredderVPN'.encode('utf-8')).decode('utf-8')}",
                 "Profile-Update-Interval": "1",
