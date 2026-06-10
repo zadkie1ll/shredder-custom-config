@@ -7,15 +7,17 @@
     "tag": "api"
   },
   "log": {
-    "loglevel": "none"
+    "loglevel": "warning"
   },
   "burstObservatory": {
     "pingConfig": {
-      "timeout": "3s",
-      "interval": "5m",
-      "sampling": 1,
-      "destination": "http://connectivitycheck.gstatic.com/generate_204",
-      "connectivity": ""
+      "timeout": "5s",
+      "interval": "30s",
+      "sampling": 3,
+      "destination": "https://www.google.com/generate_204",
+      "connectivity": "",
+      "httpMethod": "GET",
+      "enableConcurrency": true
     },
     "subjectSelector": [
       "DIRECT",
@@ -61,10 +63,22 @@
   "routing": {
     "balancers": [
       {
+        "selector": [
+          "{{ENTRY_NAME}}"
+        ],
+        "strategy": {
+          "type": "random"
+        },
+        "tag": "MAIN-BALANCER"
+      },
+      {
         "fallbackTag": "LOOP-WL",
         "selector": [
           "DIRECT"
         ],
+        "strategy": {
+          "type": "leastLoad"
+        },
         "tag": "WL-BALANCER"
       },
       {
@@ -72,6 +86,9 @@
         "selector": [
           "WL-01"
         ],
+        "strategy": {
+          "type": "leastLoad"
+        },
         "tag": "01-FALLBACK"
       },
       {
@@ -79,6 +96,9 @@
         "selector": [
           "WL-02"
         ],
+        "strategy": {
+          "type": "leastLoad"
+        },
         "tag": "02-FALLBACK"
       },
       {
@@ -86,6 +106,9 @@
         "selector": [
           "WL-03"
         ],
+        "strategy": {
+          "type": "leastLoad"
+        },
         "tag": "03-FALLBACK"
       }
     ],
@@ -253,6 +276,10 @@
         "balancerTag": "WL-BALANCER",
         "network": "tcp",
         "port": "8080,25,465,587"
+      },
+      {
+        "balancerTag": "MAIN-BALANCER",
+        "network": "tcp,udp"
       }
     ]
   },

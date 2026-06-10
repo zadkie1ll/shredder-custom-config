@@ -222,9 +222,9 @@ async def generate_custom_config(short_uuid: str):
             if should_remove_youtube_route(outbound):
                 host_json = remove_youtube_route(host_json)
 
-            outbound["streamSettings"]["sockopt"] = {
-                "dialerProxy": "ROUTING-IN"
-            }
+            stream_settings = outbound.setdefault("streamSettings", {})
+            sockopt = stream_settings.setdefault("sockopt", {})
+            sockopt["dialerProxy"] = "ROUTING-IN"
             host_json["outbounds"].insert(0, outbound)
             client_config.append(host_json)
 
@@ -239,6 +239,10 @@ async def generate_custom_config(short_uuid: str):
         traffic_bytes = parse_traffic_to_bytes(traffic_raw)
 
         announce = "🔐В белых списках доступ ко всем сайтам. Все локации в белом списке!"
+        announce_base64 = base64.b64encode(announce.encode("utf-8")).decode("utf-8")
+        profile_title_base64 = base64.b64encode(
+            "ShredderVPN".encode("utf-8")
+        ).decode("utf-8")
 
         return Response(
             content=orjson.dumps(client_config, option=orjson.OPT_INDENT_2).decode('utf-8'),
@@ -246,8 +250,8 @@ async def generate_custom_config(short_uuid: str):
             headers={
                 "Content-Disposition": f"attachment; filename={username}.json",
                 "Support-URL": "https://t.me/Shredder_vps_bot",
-                "announce": f"base64:{base64.b64encode(announce.encode("utf-8")).decode("utf-8")}",
-                "Profile-Title": f"base64:{base64.b64encode('ShredderVPN'.encode('utf-8')).decode('utf-8')}",
+                "announce": f"base64:{announce_base64}",
+                "Profile-Title": f"base64:{profile_title_base64}",
                 "Profile-Update-Interval": "1",
                 "profile-web-page-url": f"{subscription_url}",
                 "Subscription-Userinfo": f"upload=0; download={traffic_bytes}; total=0; expire={seconds}",
