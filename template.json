@@ -455,37 +455,6 @@
       "settings" : {
         "vnext" : [
           {
-            "address" : "pro-ru-84.emrata.top",
-            "port" : 443,
-            "users" : [
-              {
-                "encryption" : "none",
-                "flow" : "xtls-rprx-vision",
-                "id" : "6e84b643-1c90-41e7-9028-ce4dea28c21c"
-              }
-            ]
-          }
-        ]
-      },
-      "streamSettings" : {
-        "network" : "tcp",
-        "realitySettings" : {
-          "fingerprint" : "firefox",
-          "publicKey" : "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
-          "serverName" : "ads.x5.ru"
-        },
-        "security" : "reality",
-        "tcpSettings" : {
-
-        }
-      },
-      "tag" : "WL-02-LM-1"
-    },
-    {
-      "protocol" : "vless",
-      "settings" : {
-        "vnext" : [
-          {
             "address" : "185.242.19.250",
             "port" : 443,
             "users" : [
@@ -584,6 +553,37 @@
       "settings" : {
         "vnext" : [
           {
+            "address" : "pro-de.emrata.top",
+            "port" : 443,
+            "users" : [
+              {
+                "encryption" : "none",
+                "flow" : "",
+                "id" : "6e84b643-1c90-0001-9028-ce4dea28c21c"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings" : {
+        "network" : "tcp",
+        "realitySettings" : {
+          "fingerprint" : "firefox",
+          "publicKey" : "F2VfBr2UmjDTErB_oruvW5aIvzH_xGfM2AW5_w-DF0I",
+          "serverName" : "pro-de.emrata.top"
+        },
+        "security" : "reality",
+        "tcpSettings" : {
+
+        }
+      },
+      "tag" : "WL-02-DE-1"
+    },
+    {
+      "protocol" : "vless",
+      "settings" : {
+        "vnext" : [
+          {
             "address" : "pro-ru-213.emrata.top",
             "port" : 443,
             "users" : [
@@ -608,7 +608,7 @@
 
         }
       },
-      "tag" : "WL-01-VKC"
+      "tag" : "WL-02-VKC-213"
     },
     {
       "protocol" : "vless",
