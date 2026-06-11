@@ -559,7 +559,7 @@
               {
                 "encryption" : "none",
                 "flow" : "",
-                "id" : "6e84b643-1c90-0001-9028-ce4dea28c21c"
+                "id" : "49c2a86b-686a-0001-b1a7-9ee48625c237"
               }
             ]
           }
@@ -590,7 +590,7 @@
               {
                 "encryption" : "none",
                 "flow" : "xtls-rprx-vision",
-                "id" : "6e84b643-1c90-41e7-9028-ce4dea28c21c"
+                "id" : "49c2a86b-686a-401b-b1a7-9ee48625c237"
               }
             ]
           }
@@ -621,7 +621,7 @@
               {
                 "encryption" : "none",
                 "flow" : "xtls-rprx-vision",
-                "id" : "6e84b643-1c90-41e7-9028-ce4dea28c21c"
+                "id" : "49c2a86b-686a-401b-b1a7-9ee48625c237"
               }
             ]
           }
@@ -639,7 +639,7 @@
 
         }
       },
-      "tag" : "WL-03-YAD-01-04"
+      "tag" : "WL-02-YAD-01-04"
     },
     {
       "protocol": "freedom",
