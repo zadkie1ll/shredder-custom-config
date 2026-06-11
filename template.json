@@ -103,7 +103,7 @@
         "port": "443"
       },
       {
-        "balancerTag": "WL-BALANCER",
+        "outboundTag": "DIRECT",
         "inboundTag": [
           "ROUTING-SOCKS"
         ]
