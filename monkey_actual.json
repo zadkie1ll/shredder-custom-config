@@ -31,8 +31,9 @@
         "domains": [
           "geosite:private",
           "geosite:category-ru",
-          "domain:orpheous.ru",
-          "domain:emrata.top",
+          "domain:monkeyisland.xyz",
+          "domain:monkeyisland.space",
+          "domain:monkeyisland.online",
           "domain:gstatic.com"
         ],
         "port": 53
@@ -296,7 +297,7 @@
       "settings": {
         "vnext": [
           {
-            "address": "51.250.107.170",
+            "address": "ru-217.monkeyisland.xyz",
             "port": 443,
             "users": [
               {
@@ -311,10 +312,10 @@
       "streamSettings": {
         "network": "tcp",
         "realitySettings": {
-          "fingerprint": "firefox",
-          "publicKey": "s8rHJ8TSxWVCl4OnDzygPD1rvGAulfXoXpGHvZV7tlE",
-          "serverName": "ads.x5.ru",
-          "shortId": "e4aa362b5f9d07d7"
+          "publicKey": "LHcascaxOxugVSALgsYx46nB-vuhT7ANOneu0xb6SzQ",
+          "serverName": "max.ru",
+          "shortId": "5391b442b5339dc0",
+          "fingerprint": "qq"
         },
         "security": "reality"
       },
@@ -325,13 +326,13 @@
       "settings": {
         "vnext": [
           {
-            "address": "51.250.18.249",
+            "address": "new-pro-ru-213.emrata.top",
             "port": 443,
             "users": [
               {
                 "encryption": "none",
                 "flow": "xtls-rprx-vision",
-                "id": "{{VLESS_USER}}"
+                "id": "ec2aaf4f-b1aa-4410-4b14-d4b4e9b5daf4"
               }
             ]
           }
@@ -340,10 +341,9 @@
       "streamSettings": {
         "network": "tcp",
         "realitySettings": {
-          "fingerprint": "firefox",
-          "publicKey": "s8rHJ8TSxWVCl4OnDzygPD1rvGAulfXoXpGHvZV7tlE",
-          "serverName": "ads.x5.ru",
-          "shortId": "e4aa362b5f9d07d7"
+          "fingerprint": "qq",
+          "publicKey": "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
+          "serverName": "eh.vk.ru"
         },
         "security": "reality",
         "tcpSettings": {}
@@ -355,7 +355,7 @@
       "settings": {
         "vnext": [
           {
-            "address": "178.154.214.214",
+            "address": "ru-84.monkeyisland.xyz",
             "port": 443,
             "users": [
               {
@@ -370,10 +370,10 @@
       "streamSettings": {
         "network": "tcp",
         "realitySettings": {
-          "publicKey": "s8rHJ8TSxWVCl4OnDzygPD1rvGAulfXoXpGHvZV7tlE",
+          "publicKey": "LHcascaxOxugVSALgsYx46nB-vuhT7ANOneu0xb6SzQ",
           "serverName": "ads.x5.ru",
-          "shortId": "e4aa362b5f9d07d7",
-          "fingerprint": "firefox"
+          "shortId": "3b25133dd9e5c23f",
+          "fingerprint": "qq"
         },
         "security": "reality"
       },

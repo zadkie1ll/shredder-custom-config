@@ -7,7 +7,7 @@
     "tag": "api"
   },
   "log": {
-    "loglevel": "none"
+    "loglevel": "warning"
   },
   "burstObservatory": {
     "pingConfig": {
@@ -31,8 +31,13 @@
         "domains": [
           "geosite:private",
           "geosite:category-ru",
+          "domain:monkeyisland.xyz",
+          "domain:monkeyisland.space",
+          "domain:monkeyisland.online",
+          "domain:monkora.org",
           "domain:orpheous.ru",
           "domain:emrata.top",
+          "domain:mwscdn.ru",
           "domain:gstatic.com"
         ],
         "port": 53
@@ -98,7 +103,7 @@
         "port": "443"
       },
       {
-        "balancerTag": "WL-BALANCER",
+        "outboundTag": "DIRECT",
         "inboundTag": [
           "ROUTING-SOCKS"
         ]
@@ -143,6 +148,12 @@
         ]
       },
       {
+        "outboundTag": "{{ENTRY_NAME}}",
+        "ip": [
+          "108.181.60.0/24"
+        ]
+      },
+      {
         "domain": [
           "geosite:private"
         ],
@@ -155,7 +166,6 @@
         "outboundTag": "DIRECT"
       },
       {
-        "outboundTag": "RU-WL-DIRECT",
         "domain": [
           "domain:dom.ru",
           "domain:tochka.com",
@@ -231,18 +241,22 @@
           "domain:yandex.com",
           "domain:yastatic.net",
           "domain:yandexcloud.net",
-          "domain:dzen.ru",
           "domain:go.yandex",
-          "domain:ruwiki.ru",
           "domain:oneme.ru",
           "domain:vk-analytics.ru"
-        ]
+        ],
+        "outboundTag": "FORCE-DIRECT"
       },
       {
         "balancerTag": "WL-BALANCER",
         "domain": [
           "geosite:category-ru"
         ]
+      },
+      {
+        "network": "tcp",
+        "outboundTag": "FORCE-DIRECT",
+        "port": "25,465,587,8080"
       }
     ]
   },
@@ -318,7 +332,7 @@
         },
         "security": "reality"
       },
-      "tag": "WL-01-VK-1"
+      "tag": "WL-01-1"
     },
     {
       "protocol": "vless",
@@ -345,10 +359,67 @@
           "serverName": "ads.x5.ru",
           "shortId": "e4aa362b5f9d07d7"
         },
-        "security": "reality",
-        "tcpSettings": {}
+        "security": "reality"
       },
-      "tag": "WL-02-LM-1"
+      "tag": "WL-01-2"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "158.160.224.217",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "flow": "xtls-rprx-vision",
+                "id": "{{VLESS_USER}}"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {
+          "fingerprint": "firefox",
+          "publicKey": "s8rHJ8TSxWVCl4OnDzygPD1rvGAulfXoXpGHvZV7tlE",
+          "serverName": "ads.x5.ru",
+          "shortId": "e4aa362b5f9d07d7"
+        },
+        "security": "reality"
+      },
+      "tag": "WL-01-3"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "158.160.180.43",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "flow": "xtls-rprx-vision",
+                "id": "{{VLESS_USER}}"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {
+          "fingerprint": "firefox",
+          "publicKey": "s8rHJ8TSxWVCl4OnDzygPD1rvGAulfXoXpGHvZV7tlE",
+          "serverName": "ads.x5.ru",
+          "shortId": "e4aa362b5f9d07d7"
+        },
+        "security": "reality"
+      },
+      "tag": "WL-01-4"
     },
     {
       "protocol": "vless",
@@ -370,14 +441,205 @@
       "streamSettings": {
         "network": "tcp",
         "realitySettings": {
+          "fingerprint": "firefox",
           "publicKey": "s8rHJ8TSxWVCl4OnDzygPD1rvGAulfXoXpGHvZV7tlE",
           "serverName": "ads.x5.ru",
-          "shortId": "e4aa362b5f9d07d7",
-          "fingerprint": "firefox"
+          "shortId": "e4aa362b5f9d07d7"
         },
         "security": "reality"
       },
-      "tag": "WL-03-YDX-3"
+      "tag": "WL-01-5"
+    },
+    {
+      "protocol" : "vless",
+      "settings" : {
+        "vnext" : [
+          {
+            "address" : "185.242.19.250",
+            "port" : 443,
+            "users" : [
+              {
+                "encryption" : "none",
+                "flow" : "",
+                "id" : "6e84b643-1c90-41e7-9028-ce4dea28c21c"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings" : {
+        "network" : "ws",
+        "security" : "tls",
+        "tlsSettings" : {
+          "alpn" : [
+            "http\/1.1"
+          ],
+          "fingerprint" : "firefox",
+          "serverName" : "mwscdn.ru"
+        },
+        "wsSettings" : {
+          "headers" : {
+            "Host" : "top2375206569.mwscdn.ru"
+          },
+          "path" : "\/dd12aebf-132b-454c-af82-8dde06628c8a\/ws"
+        }
+      },
+      "tag" : "WL-02-LM-2"
+    },
+    {
+      "protocol" : "vless",
+      "settings" : {
+        "vnext" : [
+          {
+            "address" : "91.240.86.70",
+            "port" : 443,
+            "users" : [
+              {
+                "encryption" : "none",
+                "flow" : "",
+                "id" : "6e84b643-1c90-41e7-9028-ce4dea28c21c"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings" : {
+        "network" : "tcp",
+        "realitySettings" : {
+          "fingerprint" : "firefox",
+          "publicKey" : "F2VfBr2UmjDTErB_oruvW5aIvzH_xGfM2AW5_w-DF0I",
+          "serverName" : "ads.x5.ru"
+        },
+        "security" : "reality",
+        "tcpSettings" : {
+
+        }
+      },
+      "tag" : "WL-02-LM-3"
+    },
+    {
+      "protocol" : "vless",
+      "settings" : {
+        "vnext" : [
+          {
+            "address" : "pro-fi.emrata.top",
+            "port" : 753,
+            "users" : [
+              {
+                "encryption" : "none",
+                "flow" : "xtls-rprx-vision",
+                "id" : "6e84b643-1c90-41e7-9028-ce4dea28c21c"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings" : {
+        "network" : "tcp",
+        "realitySettings" : {
+          "fingerprint" : "firefox",
+          "publicKey" : "F2VfBr2UmjDTErB_oruvW5aIvzH_xGfM2AW5_w-DF0I",
+          "serverName" : "www.amd.com"
+        },
+        "security" : "reality",
+        "tcpSettings" : {
+
+        }
+      },
+      "tag" : "WL-02-VKC"
+    },
+    {
+      "protocol" : "vless",
+      "settings" : {
+        "vnext" : [
+          {
+            "address" : "pro-de.emrata.top",
+            "port" : 443,
+            "users" : [
+              {
+                "encryption" : "none",
+                "flow" : "",
+                "id" : "49c2a86b-686a-0001-b1a7-9ee48625c237"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings" : {
+        "network" : "tcp",
+        "realitySettings" : {
+          "fingerprint" : "firefox",
+          "publicKey" : "F2VfBr2UmjDTErB_oruvW5aIvzH_xGfM2AW5_w-DF0I",
+          "serverName" : "pro-de.emrata.top"
+        },
+        "security" : "reality",
+        "tcpSettings" : {
+
+        }
+      },
+      "tag" : "WL-02-DE-1"
+    },
+    {
+      "protocol" : "vless",
+      "settings" : {
+        "vnext" : [
+          {
+            "address" : "pro-ru-213.emrata.top",
+            "port" : 443,
+            "users" : [
+              {
+                "encryption" : "none",
+                "flow" : "xtls-rprx-vision",
+                "id" : "49c2a86b-686a-401b-b1a7-9ee48625c237"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings" : {
+        "network" : "tcp",
+        "realitySettings" : {
+          "fingerprint" : "qq",
+          "publicKey" : "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
+          "serverName" : "eh.vk.ru"
+        },
+        "security" : "reality",
+        "tcpSettings" : {
+
+        }
+      },
+      "tag" : "WL-02-VKC-213"
+    },
+    {
+      "protocol" : "vless",
+      "settings" : {
+        "vnext" : [
+          {
+            "address" : "pro-ru-84.emrata.top",
+            "port" : 443,
+            "users" : [
+              {
+                "encryption" : "none",
+                "flow" : "xtls-rprx-vision",
+                "id" : "49c2a86b-686a-401b-b1a7-9ee48625c237"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings" : {
+        "network" : "tcp",
+        "realitySettings" : {
+          "fingerprint" : "qq",
+          "publicKey" : "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
+          "serverName" : "ads.x5.ru"
+        },
+        "security" : "reality",
+        "tcpSettings" : {
+
+        }
+      },
+      "tag" : "WL-02-YAD-01-04"
     },
     {
       "protocol": "freedom",
@@ -391,7 +653,7 @@
       "settings": {
         "domainStrategy": "UseIPv4"
       },
-      "tag": "RU-WL-DIRECT"
+      "tag": "FORCE-DIRECT"
     },
     {
       "protocol": "blackhole",
