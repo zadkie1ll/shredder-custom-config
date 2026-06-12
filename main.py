@@ -222,9 +222,11 @@ async def generate_custom_config(short_uuid: str):
             if should_remove_youtube_route(outbound):
                 host_json = remove_youtube_route(host_json)
 
-            stream_settings = outbound.setdefault("streamSettings", {})
-            sockopt = stream_settings.setdefault("sockopt", {})
-            sockopt["dialerProxy"] = "ROUTING-IN"
+            stream_settings = outbound.get("streamSettings")
+            if stream_settings:
+                sockopt = stream_settings.get("sockopt")
+                if sockopt:
+                    sockopt.pop("dialerProxy", None)
             host_json["outbounds"].insert(0, outbound)
             client_config.append(host_json)
 
@@ -255,7 +257,9 @@ async def generate_custom_config(short_uuid: str):
                 "Profile-Update-Interval": "1",
                 "profile-web-page-url": f"{subscription_url}",
                 "Subscription-Userinfo": f"upload=0; download={traffic_bytes}; total=0; expire={seconds}",
-                "Cache-Control": "public, immutable",
+                "Cache-Control": "private, no-store, no-cache, must-revalidate",
+                "Pragma": "no-cache",
+                "Expires": "0",
                 "X-Request-ID": str(uuid.uuid4()),
             }
         )
