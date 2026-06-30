@@ -235,7 +235,8 @@
           "domain:go.yandex",
           "domain:ruwiki.ru",
           "domain:oneme.ru",
-          "domain:vk-analytics.ru"
+          "domain:vk-analytics.ru",
+          "domain:m-ets.ru"
         ]
       },
       {
@@ -296,12 +297,11 @@
       "settings": {
         "vnext": [
           {
-            "address": "51.250.107.170",
-            "port": 443,
+            "address": "771ec0116a005446.topology.gslb.yccdn.ru",
+            "port": 80,
             "users": [
               {
                 "encryption": "none",
-                "flow": "xtls-rprx-vision",
                 "id": "{{VLESS_USER}}"
               }
             ]
@@ -309,46 +309,33 @@
         ]
       },
       "streamSettings": {
-        "network": "tcp",
-        "realitySettings": {
-          "fingerprint": "firefox",
-          "publicKey": "s8rHJ8TSxWVCl4OnDzygPD1rvGAulfXoXpGHvZV7tlE",
-          "serverName": "ads.x5.ru",
-          "shortId": "e4aa362b5f9d07d7"
-        },
-        "security": "reality"
-      },
-      "tag": "WL-01-VK-1"
-    },
-    {
-      "protocol": "vless",
-      "settings": {
-        "vnext": [
-          {
-            "address": "51.250.18.249",
-            "port": 443,
-            "users": [
-              {
-                "encryption": "none",
-                "flow": "xtls-rprx-vision",
-                "id": "{{VLESS_USER}}"
-              }
-            ]
+        "network": "xhttp",
+        "security": "none",
+        "xhttpSettings": {
+          "host": "771ec0116a005446.topology.gslb.yccdn.ru",
+          "path": "/assets/api/v2/",
+          "mode": "packet-up",
+          "uplinkHTTPMethod": "GET",
+          "sessionKey": "X-Upload-Token",
+          "sessionPlacement": "header",
+          "seqKey": "chunk_id",
+          "seqPlacement": "query",
+          "xPaddingHeader": "X-Client-Version",
+          "xPaddingMethod": "tokenish",
+          "xPaddingKey": "hash",
+          "xPaddingObfsMode": true,
+          "xPaddingPlacement": "queryInHeader",
+          "xmux": {
+            "hMaxReusableSecs": "1800-3000",
+            "cMaxReuseTimes": 1000,
+            "maxConcurrency": "16-32",
+            "maxConnections": 0,
+            "hKeepAlivePeriod": 20000,
+            "hMaxRequestTimes": "600-900"
           }
-        ]
+        }
       },
-      "streamSettings": {
-        "network": "tcp",
-        "realitySettings": {
-          "fingerprint": "firefox",
-          "publicKey": "s8rHJ8TSxWVCl4OnDzygPD1rvGAulfXoXpGHvZV7tlE",
-          "serverName": "ads.x5.ru",
-          "shortId": "e4aa362b5f9d07d7"
-        },
-        "security": "reality",
-        "tcpSettings": {}
-      },
-      "tag": "WL-02-LM-1"
+      "tag": "WL-01-YCDN-RU6"
     },
     {
       "protocol": "vless",
