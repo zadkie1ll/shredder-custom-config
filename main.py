@@ -22,6 +22,12 @@ from config import Config
 config = Config()
 
 TEMPLATE = Template(PLPath("template.json").read_text(encoding="utf-8"))
+STRICT_CDN_OUTBOUND_TAG = "WL-01-YCDN-RU6"
+TIMEWEB_CDN_OUTBOUND_TAG = "WL-01-TWCDN-RU5"
+CDN_OUTBOUND_TAGS = {
+    STRICT_CDN_OUTBOUND_TAG,
+    TIMEWEB_CDN_OUTBOUND_TAG,
+}
 
 
 @asynccontextmanager
@@ -100,6 +106,74 @@ async def get_user_subscription_raw(client: httpx.AsyncClient, short_uuid: str):
     return response.json()
 
 
+
+
+def build_admin_identity_headers(user_identity):
+    if not user_identity:
+        return {}
+
+    header_map = {
+        "user_key": "X-User-Key",
+        "user_id": "X-User-Id",
+        "telegram_id": "X-Telegram-Id",
+        "username": "X-Username",
+        "remnawave_user_uuid": "X-Remnawave-User-Uuid",
+        "short_uuid": "X-Short-Uuid",
+    }
+
+    headers = {}
+    for key, header_name in header_map.items():
+        value = user_identity.get(key)
+        if value is not None and value != "":
+            headers[header_name] = str(value)
+
+    return headers
+
+
+async def get_runtime_template(client, user_identity=None):
+    if not config.admin_config_next_url:
+        return TEMPLATE
+
+    headers = {
+        "Accept": "application/json",
+        **build_admin_identity_headers(user_identity),
+    }
+    if config.admin_token:
+        headers["X-Admin-Token"] = config.admin_token
+
+    try:
+        response = await client.get(
+            config.admin_config_next_url,
+            headers=headers,
+            timeout=config.admin_request_timeout,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        content = payload.get("content")
+        if isinstance(content, str):
+            template_source = content
+        elif isinstance(content, (dict, list)):
+            template_source = orjson.dumps(content).decode("utf-8")
+        else:
+            raise ValueError("admin response does not contain JSON content")
+
+        logging.info(
+            "using admin config template id=%s name=%s assignment=%s user_id=%s",
+            payload.get("id"),
+            payload.get("name"),
+            payload.get("assignment_key"),
+            payload.get("user_id"),
+        )
+        return Template(template_source)
+    except Exception as exc:
+        logging.error(
+            "failed to load admin config template, falling back to local template.json: %s",
+            exc,
+            exc_info=True,
+        )
+        return TEMPLATE
+
+
 async def get_client_json_config(client: httpx.AsyncClient, short_uuid: str):
     headers = {
         "Content-Type": "application/json",
@@ -173,13 +247,107 @@ def remove_youtube_route(host_json):
     return host_json
 
 
-@app.get("/sub/{short_uuid}/custom-json")
-async def generate_custom_config(short_uuid: str):
+def force_strict_cdn_routing(host_json, cdn_outbound_tag=STRICT_CDN_OUTBOUND_TAG):
+    host_json["outbounds"] = [
+        outbound
+        for outbound in host_json.get("outbounds", [])
+        if outbound.get("tag") not in CDN_OUTBOUND_TAGS
+        or outbound.get("tag") == cdn_outbound_tag
+    ]
+
+    if "burstObservatory" in host_json:
+        host_json["burstObservatory"]["subjectSelector"] = [cdn_outbound_tag]
+
+    routing = host_json.get("routing", {})
+
+    for balancer in routing.get("balancers", []):
+        if balancer.get("tag") in {
+            "WL-BALANCER",
+            "01-FALLBACK",
+            "02-FALLBACK",
+            "03-FALLBACK",
+        }:
+            balancer["selector"] = [cdn_outbound_tag]
+            balancer["fallbackTag"] = cdn_outbound_tag
+
+    for rule in routing.get("rules", []):
+        if rule.get("inboundTag"):
+            continue
+
+        if rule.get("balancerTag") == "WL-BALANCER":
+            rule.pop("balancerTag", None)
+            rule["outboundTag"] = config.base_entry_proxy_tag
+            continue
+
+        if rule.get("outboundTag") in {
+            "RU-WL-DIRECT",
+            STRICT_CDN_OUTBOUND_TAG,
+            TIMEWEB_CDN_OUTBOUND_TAG,
+        }:
+            rule["outboundTag"] = config.base_entry_proxy_tag
+            continue
+
+        if rule.get("outboundTag") == "DIRECT" and rule.get("ip") == ["77.88.8.8"]:
+            rule["outboundTag"] = config.base_entry_proxy_tag
+
+    return host_json
+
+
+def remove_experimental_cdn_outbounds(host_json):
+    host_json["outbounds"] = [
+        outbound
+        for outbound in host_json.get("outbounds", [])
+        if outbound.get("tag") != TIMEWEB_CDN_OUTBOUND_TAG
+    ]
+
+    return host_json
+
+
+def force_entry_proxy_over_cdn(outbound):
+    stream_settings = outbound.setdefault("streamSettings", {})
+    sockopt = stream_settings.setdefault("sockopt", {})
+    sockopt["dialerProxy"] = "ROUTING-IN"
+    return outbound
+
+
+def force_cdn_only_config(host_json, cdn_outbound_tag=STRICT_CDN_OUTBOUND_TAG):
+    host_json["outbounds"] = [
+        outbound
+        for outbound in host_json.get("outbounds", [])
+        if outbound.get("tag") in {
+            config.base_entry_proxy_tag,
+            cdn_outbound_tag,
+            "DIRECT",
+            "RU-WL-DIRECT",
+            "BLOCK",
+            "ROUTING-IN",
+            "LOOP-WL",
+            "LOOP-01",
+            "LOOP-02",
+        }
+    ]
+
+    if "burstObservatory" in host_json:
+        host_json["burstObservatory"]["subjectSelector"] = [cdn_outbound_tag]
+
+    return host_json
+
+
+async def build_custom_config_response(
+    short_uuid: str,
+    strict_cdn: bool = False,
+    cdn_only: bool = False,
+    cdn_outbound_tag: str = STRICT_CDN_OUTBOUND_TAG,
+):
     """
     Генерирует кастомную VPN конфигурацию.
     При возникновении ошибки, делает запрос к оригинальному сервису remnawave-subscription-page и запрашивает json.
     """
-    logging.info(f"generating custom config for: {short_uuid}")
+    logging.info(
+        f"generating custom config for: {short_uuid}, "
+        f"strict_cdn={strict_cdn}, cdn_only={cdn_only}, "
+        f"cdn_outbound_tag={cdn_outbound_tag}"
+    )
 
     try:
         client = app.state.http_client
@@ -188,9 +356,21 @@ async def generate_custom_config(short_uuid: str):
             client=client, short_uuid=short_uuid
         )
 
-        vless_uuid = raw_subscription_json["response"]["user"]["vlessUuid"]
-        subscription_url = raw_subscription_json["response"]["user"]["subscriptionUrl"]
-        username = raw_subscription_json["response"]["user"]["username"]
+        user_data = raw_subscription_json["response"]["user"]
+        vless_uuid = user_data["vlessUuid"]
+        subscription_url = user_data["subscriptionUrl"]
+        username = user_data["username"]
+        user_identity = {
+            "user_key": f"sub:{short_uuid}",
+            "username": username,
+            "telegram_id": user_data.get("telegramId") or user_data.get("telegram_id"),
+            "remnawave_user_uuid": user_data.get("uuid") or user_data.get("id"),
+            "short_uuid": short_uuid,
+        }
+        runtime_template = await get_runtime_template(
+            client=client,
+            user_identity=user_identity,
+        )
         days_left = raw_subscription_json["response"]["convertedUserInfo"]["daysLeft"]
         converted_user_info = raw_subscription_json["response"]["convertedUserInfo"]
 
@@ -209,9 +389,12 @@ async def generate_custom_config(short_uuid: str):
                 media_type="application/json",
             )
 
+        if cdn_only:
+            outbounds = outbounds[:1]
+
         client_config = []
         for outbound, remarks in outbounds:
-            rendered_host = TEMPLATE.render(
+            rendered_host = runtime_template.render(
                 VLESS_USER=vless_uuid,
                 REMARKS=remarks,
                 ENTRY_NAME=config.base_entry_proxy_tag
@@ -222,12 +405,24 @@ async def generate_custom_config(short_uuid: str):
             if should_remove_youtube_route(outbound):
                 host_json = remove_youtube_route(host_json)
 
-            stream_settings = outbound.get("streamSettings")
-            if stream_settings:
-                sockopt = stream_settings.get("sockopt")
-                if sockopt:
-                    sockopt.pop("dialerProxy", None)
+            if strict_cdn:
+                host_json = force_strict_cdn_routing(
+                    host_json,
+                    cdn_outbound_tag=cdn_outbound_tag,
+                )
+            else:
+                host_json = remove_experimental_cdn_outbounds(host_json)
+
+            outbound = force_entry_proxy_over_cdn(outbound)
             host_json["outbounds"].insert(0, outbound)
+
+            if cdn_only:
+                host_json["remarks"] = f"{host_json.get('remarks', remarks)} CDN ONLY"
+                host_json = force_cdn_only_config(
+                    host_json,
+                    cdn_outbound_tag=cdn_outbound_tag,
+                )
+
             client_config.append(host_json)
 
         now = datetime.now()
@@ -268,6 +463,79 @@ async def generate_custom_config(short_uuid: str):
     except Exception as e:
         logging.error(f"Unexpected error for {short_uuid}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
+@app.get("/sub/{short_uuid}/custom-json")
+async def generate_custom_config(short_uuid: str):
+    return await build_custom_config_response(short_uuid=short_uuid)
+
+
+@app.head("/sub/{short_uuid}/custom-json")
+async def check_custom_config(short_uuid: str):
+    return Response(status_code=200)
+
+
+@app.get("/sub/{short_uuid}/custom-json-cdn")
+async def generate_strict_cdn_custom_config(short_uuid: str):
+    return await build_custom_config_response(short_uuid=short_uuid, strict_cdn=True)
+
+
+@app.head("/sub/{short_uuid}/custom-json-cdn")
+async def check_strict_cdn_custom_config(short_uuid: str):
+    return Response(status_code=200)
+
+
+@app.get("/sub/{short_uuid}/cdn/custom-json")
+async def generate_strict_cdn_custom_config_compatible_path(short_uuid: str):
+    return await build_custom_config_response(short_uuid=short_uuid, strict_cdn=True)
+
+
+@app.head("/sub/{short_uuid}/cdn/custom-json")
+async def check_strict_cdn_custom_config_compatible_path(short_uuid: str):
+    return Response(status_code=200)
+
+
+@app.get("/sub/{short_uuid}/cdn/custom-json-only")
+async def generate_cdn_only_custom_config(short_uuid: str):
+    return await build_custom_config_response(
+        short_uuid=short_uuid,
+        strict_cdn=True,
+        cdn_only=True,
+    )
+
+
+@app.head("/sub/{short_uuid}/cdn/custom-json-only")
+async def check_cdn_only_custom_config(short_uuid: str):
+    return Response(status_code=200)
+
+
+@app.get("/sub/{short_uuid}/timeweb/custom-json")
+async def generate_timeweb_strict_cdn_custom_config(short_uuid: str):
+    return await build_custom_config_response(
+        short_uuid=short_uuid,
+        strict_cdn=True,
+        cdn_outbound_tag=TIMEWEB_CDN_OUTBOUND_TAG,
+    )
+
+
+@app.head("/sub/{short_uuid}/timeweb/custom-json")
+async def check_timeweb_strict_cdn_custom_config(short_uuid: str):
+    return Response(status_code=200)
+
+
+@app.get("/sub/{short_uuid}/timeweb/custom-json-only")
+async def generate_timeweb_cdn_only_custom_config(short_uuid: str):
+    return await build_custom_config_response(
+        short_uuid=short_uuid,
+        strict_cdn=True,
+        cdn_only=True,
+        cdn_outbound_tag=TIMEWEB_CDN_OUTBOUND_TAG,
+    )
+
+
+@app.head("/sub/{short_uuid}/timeweb/custom-json-only")
+async def check_timeweb_cdn_only_custom_config(short_uuid: str):
+    return Response(status_code=200)
 
 
 if __name__ == "__main__":

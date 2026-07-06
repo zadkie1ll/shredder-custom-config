@@ -312,7 +312,7 @@
         "network": "xhttp",
         "security": "none",
         "xhttpSettings": {
-          "host": "771ec0116a005446.topology.gslb.yccdn.ru",
+          "host": "cdn.orpheous.ru",
           "path": "/assets/api/v2/",
           "mode": "packet-up",
           "uplinkHTTPMethod": "GET",
@@ -337,6 +337,53 @@
       },
       "tag": "WL-01-YCDN-RU6"
     },
+  {
+    "protocol": "vless",
+    "settings": {
+      "vnext": [
+        {
+          "address": "twcdn.orpheous.ru",
+          "port": 443,
+          "users": [
+            {
+              "encryption": "none",
+              "id": "{{VLESS_USER}}"
+            }
+          ]
+        }
+      ]
+    },
+      "streamSettings": {
+        "network": "xhttp",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "twcdn.orpheous.ru",
+          "allowInsecure": false,
+          "alpn": [
+            "h2",
+            "http/1.1"
+          ],
+          "fingerprint": "chrome"
+        },
+        "xhttpSettings": {
+          "host": "twcdn.orpheous.ru",
+          "mode": "packet-up",
+          "path": "/api/file.bin",
+          "uplinkHTTPMethod": "GET",
+          "seqKey": "chunk_id",
+        "sessionKey": "X-Upload-Token",
+        "xPaddingKey": "hash",
+        "seqPlacement": "query",
+        "xPaddingHeader": "X-Client-Version",
+        "xPaddingMethod": "tokenish",
+        "sessionPlacement": "header",
+        "xPaddingObfsMode": true,
+        "xPaddingPlacement": "queryInHeader",
+        "scStreamUpServerSecs": "20-80"
+      }
+    },
+    "tag": "WL-01-TWCDN-RU5"
+  },
     {
       "protocol": "vless",
       "settings": {

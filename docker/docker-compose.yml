@@ -1,7 +1,8 @@
 services:
   monkey-island-custom-config:
     restart: unless-stopped
-    network_mode: host # на MacOS/Windows это не работает, нужно добавить ports секцию
+    networks:
+      - remnawave-network
     image: monkey-island-custom-config:v0.1
     env_file:
       - .env
@@ -9,8 +10,12 @@ services:
     volumes:
       - log:/app/log
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
 
 volumes:
   log:
+
+networks:
+  remnawave-network:
+    external: true
