@@ -23,6 +23,7 @@ WORKDIR /app
 COPY *.py ./
 COPY *.pyi ./
 COPY template.json ./
+COPY template_yandex_https.json ./
 COPY requirements.txt ./
 
 RUN python3 -m pip install --upgrade pip setuptools && \

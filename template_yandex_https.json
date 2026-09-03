@@ -19,8 +19,7 @@
     },
     "subjectSelector": [
       "DIRECT",
-      "WL-0",
-      "YT-RU"
+      "WL-0"
     ]
   },
   "dns": {
@@ -63,13 +62,6 @@
   "routing": {
     "balancers": [
       {
-        "fallbackTag": "LOOP-YOUTUBE",
-        "selector": [
-          "YT-RU"
-        ],
-        "tag": "YOUTUBE-BALANCER"
-      },
-      {
         "fallbackTag": "LOOP-WL",
         "selector": [
           "DIRECT"
@@ -104,20 +96,6 @@
         "network": "udp",
         "outboundTag": "BLOCK",
         "port": "443"
-      },
-      {
-        "balancerTag": "WL-BALANCER",
-        "inboundTag": [
-          "YOUTUBE-REROUTE"
-        ],
-        "type": "field"
-      },
-      {
-        "balancerTag": "YOUTUBE-BALANCER",
-        "domain": [
-          "geosite:youtube"
-        ],
-        "type": "field"
       },
       {
         "balancerTag": "WL-BALANCER",
@@ -551,38 +529,6 @@
       "settings": {
         "vnext": [
           {
-            "address": "yt.orpheous.ru",
-            "port": 443,
-            "users": [
-              {
-                "encryption": "none",
-                "flow": "xtls-rprx-vision",
-                "id": "{{VLESS_USER}}"
-              }
-            ]
-          }
-        ]
-      },
-      "streamSettings": {
-        "network": "tcp",
-        "realitySettings": {
-          "publicKey": "9rdvkUGJyNbRvsB0Pp06h1URq9AHDPRtH9-wmNB1-j4",
-          "serverName": "yt.orpheous.ru",
-          "shortId": "e4aa362b5f9d07d7",
-          "fingerprint": "firefox"
-        },
-        "sockopt": {
-          "dialerProxy": "ROUTING-IN"
-        },
-        "security": "reality"
-      },
-      "tag": "YT-RU-01"
-    },
-    {
-      "protocol": "vless",
-      "settings": {
-        "vnext": [
-          {
             "address": "178.154.214.214",
             "port": 443,
             "users": [
@@ -612,8 +558,8 @@
       "settings": {
         "vnext": [
           {
-            "address": "771ec0116a005446.topology.gslb.yccdn.ru",
-            "port": 80,
+            "address": "cdn1.orpheous.ru",
+            "port": 443,
             "users": [
               {
                 "encryption": "none",
@@ -625,14 +571,16 @@
       },
       "streamSettings": {
         "network": "xhttp",
-        "security": "none",
+        "security": "tls",
         "xhttpSettings": {
-          "host": "cdn.orpheous.ru",
-          "path": "/assets/api/v2/",
+          "host": "cdn1.orpheous.ru",
+          "path": "/api/uploadFile/",
           "mode": "packet-up",
           "uplinkHTTPMethod": "GET",
           "sessionKey": "X-Upload-Token",
           "sessionPlacement": "header",
+          "sessionIDKey": "X-Upload-Token",
+          "sessionIDPlacement": "header",
           "seqKey": "chunk_id",
           "seqPlacement": "query",
           "xPaddingHeader": "X-Client-Version",
@@ -648,9 +596,18 @@
             "hKeepAlivePeriod": 20000,
             "hMaxRequestTimes": "600-900"
           }
+        },
+        "tlsSettings": {
+          "serverName": "cdn1.orpheous.ru",
+          "allowInsecure": false,
+          "alpn": [
+            "h2",
+            "http/1.1"
+          ],
+          "fingerprint": "chrome"
         }
       },
-      "tag": "WL-03-YCDN-RU6"
+      "tag": "WL-03-YCDN-HTTPS-RU5"
     },
     {
       "protocol": "vless",
@@ -749,13 +706,6 @@
         "inboundTag": "02-REROUTE"
       },
       "tag": "LOOP-02"
-    },
-    {
-      "protocol": "loopback",
-      "settings": {
-        "inboundTag": "YOUTUBE-REROUTE"
-      },
-      "tag": "LOOP-YOUTUBE"
     }
   ]
 }
